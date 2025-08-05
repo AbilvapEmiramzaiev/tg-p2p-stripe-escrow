@@ -3,8 +3,8 @@ version: '3.8'
 services:
   bot:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ..
+      dockerfile: docker/Dockerfile.dev
     container_name: p2p-escrow-bot-dev
     environment:
       - NODE_ENV=development
@@ -17,18 +17,34 @@ services:
       - "9229:9229" # Debug port
 
   mongo:
+    image: mongo:latest
     ports:
       - "27017:27017"
     command: mongod --noauth # No auth for development
+    volumes:
+      - mongo-data:/data/db # Здесь добавляем волюм для Mongo
 
   redis:
+    image: redis:latest
     ports:
       - "6379:6379"
     command: redis-server # No password for development
-
+    volumes:
+      - redis-data:/data # Здесь добавляем волюм для Redis
+      
   # Development tools
   mongo-express:
-    profiles: [] # Always include in dev
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_AUTH_DATABASE: bot_db # Название вашей БД
+    depends_on:
+      - mongo
+    profiles:
+      - mongo-express
 
   # ngrok for webhook testing
   ngrok:
@@ -52,3 +68,11 @@ services:
       - bot-network
     profiles:
       - ngrok
+
+volumes:
+  mongo-data:
+  redis-data: # Добавляем волюм для Redis
+  
+networks:
+  bot-network:
+    driver: bridge

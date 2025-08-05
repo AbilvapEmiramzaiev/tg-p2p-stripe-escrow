@@ -1,21 +1,19 @@
-# Development Dockerfile with hot reload
 FROM node:18-alpine
 
 WORKDIR /app
 
 # Install development dependencies
-COPY package*.json ./
+COPY src/package*.json ./
 RUN npm install
 
 # Install nodemon globally for development
 RUN npm install -g nodemon
+# Copy source code
+COPY src/. .
 
 # Create app user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S botuser -u 1001
-
-# Copy source code
-COPY . .
 
 # Change ownership
 RUN chown -R botuser:nodejs /app
