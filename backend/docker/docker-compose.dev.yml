@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: p2p-escrow-bot-dev
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Debug port
+
+  mongo:
+    ports:
+      - "27017:27017"
+    command: mongod --noauth # No auth for development
+
+  redis:
+    ports:
+      - "6379:6379"
+    command: redis-server # No password for development
+
+  # Development tools
+  mongo-express:
+    profiles: [] # Always include in dev
+
+  # ngrok for webhook testing
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: p2p-ngrok
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+      - ./docker/ngrok.yml:/etc/ngrok.yml
+    ports:
+      - "4040:4040" # ngrok web UI
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - bot
+    networks:
+      - bot-network
+    profiles:
+      - ngrok
