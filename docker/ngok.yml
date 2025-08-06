@@ -1,0 +1,21 @@
+version: "2"
+authtoken: ${NGROK_AUTHTOKEN}
+
+tunnels:
+  bot-webhook:
+    addr: bot:3000
+    proto: http
+    hostname: your-custom-subdomain.ngrok.io # Optional: use custom subdomain
+    inspect: true
+    bind_tls: true
+
+web_addr: 0.0.0.0:4040
+
+# For multiple tunnels (if needed)
+# tunnels:
+#   main:
+#     addr: bot:3000
+#     proto: http
+#   admin:
+#     addr: bot:3001
+#     proto: http

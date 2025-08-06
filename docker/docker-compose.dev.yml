@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: ../backend
+      dockerfile: docker/Dockerfile.dev
+    container_name: p2p-escrow-bot-dev
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env.docker
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+    #command: npm run dev
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Debug port
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env.docker
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    command: redis-server # No password for 
+    env_file:
+      - .env.docker
+    volumes:
+      - redis-data:/data # Здесь добавляем волюм для Redis
+      
+  # Development tools
+  mongo-express:
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env.docker
+    depends_on:
+      - mongo
+   
+  # ngrok for webhook testing
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: p2p-ngrok
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml
+    ports:
+      - "4040:4040" # ngrok web UI
+    env_file:
+      - .env.docker
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - bot
+    networks:
+      - bot-network
+  
+
+volumes:
+  mongo-data:
+  redis-data: # Добавляем волюм для Redis
+  
+networks:
+  bot-network:
+    driver: bridge
