@@ -1,0 +1,33 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "description": "Telegram bot for secure P2P transactions with Stripe escrow",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node index.ts",
+    "dev": "nodemon index.ts",
+    "setup": "node index.ts"
+  },
+  "dependencies": {
+    "telegraf": "^4.15.6",
+    "stripe": "^14.12.0",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "mongoose": "^8.0.3",
+    "uuid": "^9.0.1",
+    "moment": "^2.29.4",
+    "helmet": "^7.1.0",
+    "rate-limiter-flexible": "^4.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
